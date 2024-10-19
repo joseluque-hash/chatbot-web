@@ -8,44 +8,64 @@
 <body>
     <h1>¡Hola! Bienvenido al Chatbot</h1>
     <p>Aquí puedes hacer tus preguntas.</p>
+
+    <div id="chat-container">
+        <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            const chatBox = document.getElementById('chat-box');
+            
+            // Mostrar el mensaje del usuario en el chat
+            const userMessage = document.createElement('p');
+            userMessage.textContent = "Tú: " + userInput;
+            chatBox.appendChild(userMessage);
+
+            // Verificar si el input del usuario no está vacío
+            if (!userInput) {
+                alert("Por favor, escribe algo antes de enviar.");
+                return;
+            }
+
+            // Llamada a la API de OpenAI
+            fetch('https://api.openai.com/v1/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer TU_API_KEY`  // Asegúrate de haber pegado tu nueva API Key aquí.
+                },
+                body: JSON.stringify({
+                    model: "text-davinci-003",  // El modelo que estamos usando (puedes usar gpt-3.5-turbo también).
+                    prompt: userInput,
+                    max_tokens: 100
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Para ver exactamente qué devuelve la API en la consola del navegador
+                const botMessage = document.createElement('p');
+                
+                // Verificar si hay una respuesta válida
+                if (data.choices && data.choices[0].text) {
+                    botMessage.textContent = "Chatbot: " + data.choices[0].text.trim();
+                } else {
+                    botMessage.textContent = "Chatbot: No se ha podido obtener una respuesta.";
+                }
+
+                chatBox.appendChild(botMessage);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessage = document.createElement('p');
+                errorMessage.textContent = "Error al conectar con el chatbot.";
+                chatBox.appendChild(errorMessage);
+            });
+        }
+    </script>
 </body>
 </html>
-
-<div id="chat-container">
-    <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí...">
-    <button onclick="sendMessage()">Enviar</button>
-</div>
-
-<div id="chat-box"></div>
-
-<script>
-    function sendMessage() {
-        const userInput = document.getElementById('user-input').value;
-        const chatBox = document.getElementById('chat-box');
-        
-        // Mostrar el mensaje del usuario en el chat
-        const userMessage = document.createElement('p');
-        userMessage.textContent = "Tú: " + userInput;
-        chatBox.appendChild(userMessage);
-
-        // Aquí deberías hacer la llamada a la API para obtener la respuesta
-        fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer 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`
-            },
-            body: JSON.stringify({
-                prompt: userInput,
-                max_tokens: 50
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const botMessage = document.createElement('p');
-            botMessage.textContent = "Chatbot: " + data.choices[0].text.trim();
-            chatBox.appendChild(botMessage);
-        })
-        .catch(error => console.error('Error:', error));
-    }
-</script>
