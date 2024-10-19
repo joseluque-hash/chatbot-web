@@ -21,19 +21,19 @@
             const userInput = document.getElementById('user-input').value;
             const chatBox = document.getElementById('chat-box');
 
-            // Display user message in the chat
+            // Mostrar el mensaje del usuario en el chat
             const userMessage = document.createElement('p');
             userMessage.textContent = "Tú: " + userInput;
             chatBox.appendChild(userMessage);
 
-            // Check if user input is not empty
+            // Verificar si el input del usuario no está vacío
             if (!userInput) {
                 alert("Por favor, escribe algo antes de enviar.");
                 return;
             }
 
-            // Send the user input to the Netlify function (which securely talks to OpenAI)
-            fetch('/.netlify/functions/openai-function', {  // Call Netlify function
+            // Llamar a la función de Netlify para enviar la pregunta a OpenAI
+            fetch('/.netlify/functions/openai-function', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,10 +43,10 @@
             .then(response => response.json())
             .then(data => {
                 const botMessage = document.createElement('p');
-
-                // Check if there's a valid response
-                if (data.choices && data.choices[0].text) {
-                    botMessage.textContent = "Chatbot: " + data.choices[0].text.trim();
+                
+                // Acceder al contenido del mensaje del chatbot
+                if (data.choices && data.choices[0].message && data.choices[0].message.content) {
+                    botMessage.textContent = "Chatbot: " + data.choices[0].message.content.trim();
                 } else {
                     botMessage.textContent = "Chatbot: No se ha podido obtener una respuesta.";
                 }
