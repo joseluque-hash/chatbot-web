@@ -10,3 +10,42 @@
     <p>Aquí puedes hacer tus preguntas.</p>
 </body>
 </html>
+
+<div id="chat-container">
+    <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí...">
+    <button onclick="sendMessage()">Enviar</button>
+</div>
+
+<div id="chat-box"></div>
+
+<script>
+    function sendMessage() {
+        const userInput = document.getElementById('user-input').value;
+        const chatBox = document.getElementById('chat-box');
+        
+        // Mostrar el mensaje del usuario en el chat
+        const userMessage = document.createElement('p');
+        userMessage.textContent = "Tú: " + userInput;
+        chatBox.appendChild(userMessage);
+
+        // Aquí deberías hacer la llamada a la API para obtener la respuesta
+        fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer TU_API_KEY`
+            },
+            body: JSON.stringify({
+                prompt: userInput,
+                max_tokens: 50
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const botMessage = document.createElement('p');
+            botMessage.textContent = "Chatbot: " + data.choices[0].text.trim();
+            chatBox.appendChild(botMessage);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
