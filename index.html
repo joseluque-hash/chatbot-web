@@ -20,37 +20,31 @@
         function sendMessage() {
             const userInput = document.getElementById('user-input').value;
             const chatBox = document.getElementById('chat-box');
-            
-            // Mostrar el mensaje del usuario en el chat
+
+            // Display user message in the chat
             const userMessage = document.createElement('p');
             userMessage.textContent = "Tú: " + userInput;
             chatBox.appendChild(userMessage);
 
-            // Verificar si el input del usuario no está vacío
+            // Check if user input is not empty
             if (!userInput) {
                 alert("Por favor, escribe algo antes de enviar.");
                 return;
             }
 
-            // Llamada a la API de OpenAI
-            fetch('https://api.openai.com/v1/completions', {
+            // Send the user input to the Netlify function (which securely talks to OpenAI)
+            fetch('/.netlify/functions/openai-function', {  // Call Netlify function
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer sk-LxPHKX9qML8NYVTBaYijfHBXl_AMcfx2mCwxisPHBET3BlbkFJ5lpJYBFoyd8TADMG894BrfsJDvktW4zWyoeMv66w0A`  // Asegúrate de haber pegado tu nueva API Key aquí.
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    model: "text-davinci-003",  // El modelo que estamos usando (puedes usar gpt-3.5-turbo también).
-                    prompt: userInput,
-                    max_tokens: 100
-                })
+                body: JSON.stringify({ prompt: userInput })
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data); // Para ver exactamente qué devuelve la API en la consola del navegador
                 const botMessage = document.createElement('p');
-                
-                // Verificar si hay una respuesta válida
+
+                // Check if there's a valid response
                 if (data.choices && data.choices[0].text) {
                     botMessage.textContent = "Chatbot: " + data.choices[0].text.trim();
                 } else {
