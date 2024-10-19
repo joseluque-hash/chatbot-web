@@ -6,25 +6,30 @@ exports.handler = async function(event, context) {
     // Fetch the API key securely from Netlify's environment variables
     const apiKey = process.env.OPENAI_API_KEY;
 
-    // Call the OpenAI API with the user prompt
-    const response = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-            model: "text-davinci-003",  // Or another model like "gpt-3.5-turbo"
-            prompt: prompt,
-            max_tokens: 100
-        })
-    });
+    try {
+        const response = await fetch('https://api.openai.com/v1/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`  // Use the API key securely
+            },
+            body: JSON.stringify({
+                model: "text-davinci-003",  // You can change this to "gpt-3.5-turbo" if you prefer
+                prompt: prompt,
+                max_tokens: 100
+            })
+        });
 
-    // Parse the API response
-    const data = await response.json();
-
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ result: data.choices[0].text })
-    };
+        const data = await response.json();
+        return {
+            statusCode: 200,
+            body: JSON.stringify(data)
+        };
+    } catch (error) {
+        console.error("Error calling OpenAI API:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "Error communicating with OpenAI" })
+        };
+    }
 };
